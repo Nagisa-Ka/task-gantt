@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual Environment
+.venv/
+venv/
+
+# SQLite
+database/*.db
+*.sqlite3
+
+# Flask
+instance/
+
+# VS Code
+.vscode/
