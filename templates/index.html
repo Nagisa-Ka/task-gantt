@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ガントチャートアプリ</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header>
+
+        <h1>ガントチャートアプリ</h1>
+        <hr>
+
+    </header>
+
+    <main>
+        
+        <aside>
+
+            <section id="task-list">
+                <h2>タスク一覧</h2>
+                <ul>
+                    <li></li>
+                </ul>
+            </section>
+            <hr>
+
+            <form id="task-form">
+                <h2>タスク編集</h2>
+
+                <label for="task-title">
+                    タスク名
+                </label>
+                <input
+                    id="task-title"
+                    type="text"
+                    placeholder="例：研究"
+                    maxlength="12"
+                    minlength="1">
+                <br>
+                
+                <label for="task-color">
+                    色
+                </label>
+                <input
+                    id="task-color"
+                    type="color">
+                <br>
+
+                <label for="task-start-date">
+                    開始日
+                </label>
+                <input
+                    id="task-start-date"
+                    type="date">
+                <br>
+
+                <label for="task-end-date">
+                    終了日
+                </label>
+                <input
+                    id="task-end-date"
+                    type="date">
+                <br>
+
+                <button
+                    type="submit"
+                    id="task-save-button">
+                    保存
+                </button>
+
+                <button
+                    type="button"
+                    id="task-delete-button">
+                    削除
+                </button>
+
+            </form>
+
+        </aside>
+
+        <section id="gantt-container">
+            <h2>ガントチャート</h2>
+
+        </section>
+        
+    </main>
+
+</body>
+</html>
