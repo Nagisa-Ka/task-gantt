@@ -25,23 +25,55 @@
             <section id="task-list">
                 <h2>タスク一覧</h2>
                 <ul>
-                    <li></li>
+                    {% for task in tasks %}
+                        <li>
+                            <span>{{ task.title }}</span>
+                            <span>{{ task.start_date }}</span>
+                            <span>～</span>
+                            <span>{{ task.end_date }}</span>
+                            <span
+                                class="task-color"
+                                style="background-color: {{ task.color }};">
+                            </span>
+                        </li>
+                    {% else %}
+                        <li>登録されているタスクはありません。</li>
+                    {% endfor %}
                 </ul>
             </section>
             <hr>
 
-            <form id="task-form">
-                <h2>タスク編集</h2>
+            <form
+                id="task-form"
+                action="/add"
+                method="post">
+                <h2>タスク管理</h2>
+
+                <label for="task-id">
+                    タスク選択
+                </label>
+                <select 
+                    id="task-id"
+                    name="task-id">
+                    {% for task in tasks %}
+                        <option value="{{ task.id }}">
+                            {{ task.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <br>
 
                 <label for="task-title">
                     タスク名
                 </label>
                 <input
                     id="task-title"
+                    name="task-title"
                     type="text"
                     placeholder="例：研究"
                     maxlength="12"
-                    minlength="1">
+                    minlength="1"
+                    required>
                 <br>
                 
                 <label for="task-color">
@@ -49,7 +81,9 @@
                 </label>
                 <input
                     id="task-color"
-                    type="color">
+                    name="task-color"
+                    type="color"
+                    required>
                 <br>
 
                 <label for="task-start-date">
@@ -57,7 +91,9 @@
                 </label>
                 <input
                     id="task-start-date"
-                    type="date">
+                    name="task-start-date"
+                    type="date"
+                    required>
                 <br>
 
                 <label for="task-end-date">
@@ -65,7 +101,9 @@
                 </label>
                 <input
                     id="task-end-date"
-                    type="date">
+                    name="task-end-date"
+                    type="date"
+                    required>
                 <br>
 
                 <button
@@ -75,13 +113,21 @@
                 </button>
 
                 <button
-                    type="button"
-                    id="task-delete-button">
+                    type="submit"
+                    formaction="/update"
+                    formmethod="post">
+                    編集
+                </button>
+
+                <button
+                    type="submit"
+                    formaction="/delete"
+                    formmethod="post">
                     削除
                 </button>
 
             </form>
-
+                
         </aside>
 
         <section id="gantt-container">
