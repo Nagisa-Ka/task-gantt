@@ -21,6 +21,17 @@
     <main>
         
         <aside>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <section id="flash-messages">
+                        {% for category, message in messages %}
+                            <p class="flash-message {{ category }}">
+                                {{ message }}
+                            </p>
+                        {% endfor %}
+                    </section>
+                {% endif %}
+            {% endwith %}
 
             <section id="task-list">
                 <h2>タスク一覧</h2>
@@ -55,8 +66,18 @@
                 <select 
                     id="task-id"
                     name="task-id">
+
+
+                    <option value="">
+                        タスクを選択してください
+                    </option>
+
                     {% for task in tasks %}
-                        <option value="{{ task.id }}">
+                        <option value="{{ task.id }}"
+                                data-title="{{ task.title }}"
+                                data-color="{{ task.color }}"
+                                data-start-date="{{ task.start_date }}"
+                                data-end-date="{{ task.end_date }}">
                             {{ task.title }}
                         </option>
                     {% endfor %}
@@ -90,9 +111,9 @@
                     開始日
                 </label>
                 <input
+                    type="date"
                     id="task-start-date"
                     name="task-start-date"
-                    type="date"
                     required>
                 <br>
 
@@ -100,9 +121,9 @@
                     終了日
                 </label>
                 <input
+                    type="date"
                     id="task-end-date"
                     name="task-end-date"
-                    type="date"
                     required>
                 <br>
 
@@ -121,8 +142,10 @@
 
                 <button
                     type="submit"
+                    id="task-delete-button"
                     formaction="/delete"
-                    formmethod="post">
+                    formmethod="post"
+                    formnovalidate>
                     削除
                 </button>
 
@@ -133,9 +156,41 @@
         <section id="gantt-container">
             <h2>ガントチャート</h2>
 
+            <div id="gantt-chart">
+
+                <div id="gantt-header">
+                    <div class="gantt-header-title"></div>
+                    <div id="gantt-dates"></div>
+                </div>
+
+                {% for task in tasks %}
+                    <div
+                        class="gantt-task"
+                        data-title="{{ task.title }}"
+                        data-color="{{ task.color }}"
+                        data-start-date="{{ task.start_date }}"
+                        data-end-date="{{ task.end_date }}">
+
+                        <span class="gantt-task-title">
+                            {{ task.title }}
+                        </span>
+
+                        <div class="gantt-row">
+                            <div class="gantt-bar">
+                                {{ task.title }}
+                            </div>
+                        </div>
+
+                    </div>
+                {% else %}
+                    <p>表示するタスクがありません。</p>
+                {% endfor %}
+            </div>
         </section>
         
     </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>
 </html>
