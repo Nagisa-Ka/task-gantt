@@ -151,6 +151,33 @@ def delete():
 
     return redirect(url_for("index"))
 
+@app.route("/drag-update", methods=["POST"])
+def drag_update():
+    data = request.get_json()
+
+    task_id = data.get("task_id")
+    start_date_text = data.get("start_date")
+    end_date_text = data.get("end_date")
+
+    task = db.session.get(Task, int(task_id))
+
+    if task is None:
+        return {"success": False}, 404
+
+    task.start_date = datetime.strptime(
+        start_date_text,
+        "%Y-%m-%d"
+    ).date()
+
+    task.end_date = datetime.strptime(
+        end_date_text,
+        "%Y-%m-%d"
+    ).date()
+
+    db.session.commit()
+
+    return {"success": True}
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

@@ -171,6 +171,7 @@
                 {% for task in tasks %}
                     <div
                         class="gantt-task"
+                        data-id="{{ task.id }}"
                         data-title="{{ task.title }}"
                         data-color="{{ task.color }}"
                         data-start-date="{{ task.start_date }}"

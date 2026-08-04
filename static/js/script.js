@@ -71,6 +71,7 @@ const ganttTasks =
     document.querySelectorAll(".gantt-task");
 
 const taskData = [];
+const pixelsPerDay = 40;
 
 //YYYY-MM-DDをローカル日付に変換
 function parseLocalDate(dateString) {
@@ -83,6 +84,19 @@ function parseLocalDate(dateString) {
         month - 1,
         day
     );
+}
+
+function formatDate(date) {
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(date.getMonth() + 1).padStart(2, "0");
+
+    const day =
+        String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
 }
 
 //全タスクのデータを集める
@@ -121,7 +135,6 @@ if (taskData.length > 0) {
         )
     );
 
-    const pixelsPerDay = 40;
     const millisecondsPerDay = 1000 * 60 * 60 * 24;
 
     const ganttDates =
@@ -346,4 +359,150 @@ if (taskData.length > 0) {
         ganttBar.style.backgroundColor =
             task.element.dataset.color;
     });
+
+    //ドラッグ操作
+
+    const ganttBars =
+        document.querySelectorAll(".gantt-bar");
+    let isDragging = false;
+    let startMouseX = 0;
+    let startBarLeft = 0;
+    let activeBar = null;
+
+    ganttBars.forEach(function (bar) {
+
+        bar.addEventListener("mousedown", function (event) {
+            isDragging = true;
+            activeBar = bar;
+
+            startMouseX = event.clientX;
+
+            startBarLeft =
+                parseFloat(bar.style.left) || 0;
+        });
+
+    });
+
+    document.addEventListener("mousemove", function (event) {
+
+        if (!isDragging || activeBar === null) {
+            return;
+        }
+
+        const differenceX =
+            event.clientX - startMouseX;
+
+        const movedDays =
+            Math.round(differenceX / pixelsPerDay);
+
+        const maxLeft =
+            chartDuration * pixelsPerDay
+            - activeBar.offsetWidth;
+
+        const snappedLeft =
+            Math.min(
+                maxLeft,
+                Math.max(
+                    0,
+                    startBarLeft + movedDays * pixelsPerDay
+                )
+            );
+
+        activeBar.style.left =
+            `${snappedLeft}px`;
+    });
+
+    document.addEventListener("mouseup", function () {
+
+        if (!isDragging || activeBar === null) {
+            return;
+        }
+
+        const finalBarLeft =
+            parseFloat(activeBar.style.left) || 0;
+
+        const movedDays =
+            Math.round(
+                (finalBarLeft - startBarLeft)
+                / pixelsPerDay
+            );
+
+        const taskElement =
+            activeBar.closest(".gantt-task");
+
+        const startDate =
+            parseLocalDate(
+                taskElement.dataset.startDate
+            );
+
+        const endDate =
+            parseLocalDate(
+                taskElement.dataset.endDate
+            );
+
+        startDate.setDate(
+            startDate.getDate() + movedDays
+        );
+
+        endDate.setDate(
+            endDate.getDate() + movedDays
+        );
+
+        const taskId =
+            taskElement.dataset.id;
+
+        const newStartDate =
+            formatDate(startDate);
+
+        const newEndDate =
+            formatDate(endDate);
+
+        const originalLeft =
+            startBarLeft;
+        const draggedBar =
+            activeBar;
+        
+        fetch("/drag-update", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                task_id: taskId,
+                start_date: newStartDate,
+                end_date: newEndDate
+            })
+        })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+
+            if (data.success) {
+                console.log("タスクを更新しました");
+
+                taskElement.dataset.startDate =
+                    newStartDate;
+
+                taskElement.dataset.endDate =
+                    newEndDate;
+
+            } else {
+                draggedBar.style.left =
+                    `${originalLeft}px`;
+
+                console.log("タスクの更新に失敗しました");
+            }
+        })
+        .catch(function (error) {
+            console.error("通信エラー:", error);
+        });
+
+        isDragging = false;
+        activeBar = null;
+    });
+
 }
+
