@@ -131,3 +131,69 @@ button {
     z-index: 10;
     pointer-events: none;
 }
+
+#gantt-month-header,
+#gantt-header {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+}
+
+#gantt-month-header {
+    border-bottom: 1px solid #cccccc;
+}
+
+#gantt-header {
+    border-bottom: 1px solid #aaaaaa;
+}
+
+#gantt-months {
+    display: flex;
+}
+
+.gantt-month {
+    flex-shrink: 0;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #cccccc;
+    font-weight: bold;
+    padding: 4px 0;
+}
+
+.gantt-date.weekend {
+    background-color: #f0f0f0;
+}
+.gantt-background {
+    display: flex;
+    position: absolute;
+    inset: 0;
+}
+
+.gantt-background-day {
+    width: 40px;
+    flex-shrink: 0;
+    border-right: 1px solid #dddddd;
+    box-sizing: border-box;
+}
+
+.gantt-background-day.weekend {
+    background-color: #f0f0f0;
+}
+
+.gantt-bar {
+    z-index: 1;
+}
+
+.gantt-header-title,
+.gantt-task-title {
+    border-right: 1px solid #cccccc;
+    box-sizing: border-box;
+}
+
+.gantt-task-title {
+    padding: 8px;
+}
+
+.gantt-task {
+    margin-bottom: 0;
+    border-bottom: 1px solid #eeeeee;
+}

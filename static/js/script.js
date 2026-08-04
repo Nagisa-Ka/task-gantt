@@ -105,8 +105,6 @@ ganttTasks.forEach(function (taskElement) {
 //データがある場合だけガントチャートを描写
 if (taskData.length > 0) {
 
-    //日付ヘッダー
-
     const chartStartDate = new Date(
         Math.min(
             ...taskData.map(function (task) {
@@ -141,6 +139,7 @@ if (taskData.length > 0) {
     ganttChart.style.width =
         `${120 + chartDuration * pixelsPerDay}px`;
 
+    //日付ヘッダー        
     for (let day = 0; day < chartDuration; day++) {
         const currentDate =
             new Date(chartStartDate);
@@ -157,7 +156,71 @@ if (taskData.length > 0) {
         dateElement.textContent =
             `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
 
+        // 土日の判定
+        const dayOfWeek =
+            currentDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            dateElement.classList.add("weekend");
+        }
+
         ganttDates.appendChild(dateElement);
+    }
+
+    //月ヘッダー
+    const ganttMonths =
+        document.getElementById("gantt-months");
+
+    let currentMonth = null;
+    let monthElement = null;
+    let monthDayCount = 0;
+
+    for (let day = 0; day < chartDuration; day++) {
+
+        const currentDate =
+            new Date(chartStartDate);
+
+        currentDate.setDate(
+            chartStartDate.getDate() + day
+        );
+
+        const year =
+            currentDate.getFullYear();
+
+        const month =
+            currentDate.getMonth();
+
+        const monthKey =
+            `${year}-${month}`;
+
+        if (monthKey !== currentMonth) {
+
+            if (monthElement !== null) {
+                monthElement.style.width =
+                    `${monthDayCount * pixelsPerDay}px`;
+            }
+
+            monthElement =
+                document.createElement("div");
+
+            monthElement.classList.add("gantt-month");
+
+            monthElement.textContent =
+                `${year}年${month + 1}月`;
+
+            ganttMonths.appendChild(monthElement);
+
+            currentMonth = monthKey;
+            monthDayCount = 1;
+
+        } else {
+            monthDayCount++;
+        }
+    }
+
+    if (monthElement !== null) {
+        monthElement.style.width =
+            `${monthDayCount * pixelsPerDay}px`;
     }
 
     //今日線
@@ -196,18 +259,67 @@ if (taskData.length > 0) {
 
         const datesLeft =
             datesRect.left - chartRect.left;
-    
+        
+        const todayPosition = 
+            datesLeft + todayDays * pixelsPerDay;
+
         todayLine.style.left =
-            `${datesLeft + todayDays * pixelsPerDay}px`;
+            `${todayPosition}px`;
 
         document
             .getElementById("gantt-chart")
             .appendChild(todayLine);
+
+        const ganttContainer =
+            document.getElementById("gantt-container");
+            
+        ganttContainer.scrollLeft = 
+            Math.max(
+                0,
+                todayPosition - ganttContainer.clientWidth / 2
+            );
     }
 
-    //ガントバー
     
+   
+   
+
+
+    //ガントバー
+
     taskData.forEach(function (task) {
+        
+        // タスク行の背景を取得
+        const background =
+            task.element.querySelector(".gantt-background");
+
+        // 1日ずつ背景セルを作る
+        for (let day = 0; day < chartDuration; day++) {
+
+            const currentDate =
+                new Date(chartStartDate);
+
+            currentDate.setDate(
+                chartStartDate.getDate() + day
+            );
+
+            const backgroundDay =
+                document.createElement("div");
+
+            backgroundDay.classList.add(
+                "gantt-background-day"
+            );
+
+            const dayOfWeek =
+                currentDate.getDay();
+
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                backgroundDay.classList.add("weekend");
+            }
+
+            background.appendChild(backgroundDay);
+        }
+
         const startDifference =
             task.startDate.getTime()
             - chartStartDate.getTime();
