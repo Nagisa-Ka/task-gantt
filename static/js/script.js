@@ -52,17 +52,47 @@ taskForm.addEventListener("submit", function (event) {
     }
 });
 
-const ganttTasks = document.querySelectorAll(".gantt-task");
+function parseLocalDate(dateString) {
+    const parts = dateString.split("-");
+
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+
+    return new Date(
+        year,
+        month - 1,
+        day
+    );
+}
+
+//HTMLからタスクを取得
+const ganttTasks =
+    document.querySelectorAll(".gantt-task");
+
 const taskData = [];
 
-ganttTasks.forEach(function (taskElement) {
-    const startDate = new Date(
-        taskElement.dataset.startDate
-    );
+//YYYY-MM-DDをローカル日付に変換
+function parseLocalDate(dateString) {
+    const [year, month, day] = dateString
+        .split("-")
+        .map(Number);
 
-    const endDate = new Date(
-        taskElement.dataset.endDate
+    return new Date(
+        year,
+        month - 1,
+        day
     );
+}
+
+//全タスクのデータを集める
+ganttTasks.forEach(function (taskElement) {
+
+    const startDate =
+        parseLocalDate(taskElement.dataset.startDate);
+
+    const endDate =
+        parseLocalDate(taskElement.dataset.endDate);
 
     taskData.push({
         element: taskElement,
@@ -70,80 +100,138 @@ ganttTasks.forEach(function (taskElement) {
         endDate: endDate
     });
 
-    if (taskData.length > 0) {
-        const chartStartDate = new Date(
-            Math.min(
-                ...taskData.map(function (task) {
-                    return task.startDate.getTime();
-                })
-            )
+});
+
+//データがある場合だけガントチャートを描写
+if (taskData.length > 0) {
+
+    //日付ヘッダー
+
+    const chartStartDate = new Date(
+        Math.min(
+            ...taskData.map(function (task) {
+                return task.startDate.getTime();
+            })
+        )
+    );
+
+    const chartEndDate = new Date(
+        Math.max(
+            ...taskData.map(function (task) {
+                return task.endDate.getTime();
+            })
+        )
+    );
+
+    const pixelsPerDay = 40;
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+    const ganttDates =
+        document.getElementById("gantt-dates");
+
+    const chartDuration =
+        (
+            chartEndDate.getTime()
+            - chartStartDate.getTime()
+        ) / millisecondsPerDay + 1;
+
+    const ganttChart =
+    document.getElementById("gantt-chart");
+
+    ganttChart.style.width =
+        `${120 + chartDuration * pixelsPerDay}px`;
+
+    for (let day = 0; day < chartDuration; day++) {
+        const currentDate =
+            new Date(chartStartDate);
+
+        currentDate.setDate(
+            chartStartDate.getDate() + day
         );
 
-        const chartEndDate = new Date(
-            Math.max(
-                ...taskData.map(function (task) {
-                    return task.endDate.getTime();
-                })
-            )
-        );
-    
-        const pixelsPerDay = 40;
-        const millisecondsPerDay = 1000 * 60 * 60 * 24;
+        const dateElement =
+            document.createElement("div");
+
+        dateElement.classList.add("gantt-date");
+
+        dateElement.textContent =
+            `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+
+        ganttDates.appendChild(dateElement);
+    }
+
+    //今日線
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const todayDifference = 
+        today.getTime()
+        - chartStartDate.getTime();
+
+    const todayDays =
+        todayDifference / millisecondsPerDay;
+
+    if (
+        today.getTime() >= chartStartDate.getTime()
+        && today.getTime() <= chartEndDate.getTime()
+    ) {
+        const todayLine =
+            document.createElement("div");
+
+        todayLine.classList.add("gantt-today-line");
+
+        const ganttChart =
+            document.getElementById("gantt-chart");
 
         const ganttDates =
             document.getElementById("gantt-dates");
 
-        const chartDuration =
-            (
-                chartEndDate.getTime()
-                - chartStartDate.getTime()
-            ) / millisecondsPerDay + 1;
+        const chartRect =
+            ganttChart.getBoundingClientRect();
 
-        for (let day = 0; day < chartDuration; day++) {
-            const currentDate =
-                new Date(chartStartDate);
+        const datesRect =
+            ganttDates.getBoundingClientRect();
 
-            currentDate.setDate(
-                chartStartDate.getDate() + day
-            );
+        const datesLeft =
+            datesRect.left - chartRect.left;
+    
+        todayLine.style.left =
+            `${datesLeft + todayDays * pixelsPerDay}px`;
 
-            const dateElement =
-                document.createElement("div");
-
-            dateElement.classList.add("gantt-date");
-
-            dateElement.textContent =
-                `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
-
-            ganttDates.appendChild(dateElement);
-        }
-
-        taskData.forEach(function (task) {
-            const startDifference =
-                task.startDate.getTime()
-                - chartStartDate.getTime();
-
-            const durationDifference =
-                task.endDate.getTime()
-                - task.startDate.getTime();
-
-            const startDays =
-                startDifference / millisecondsPerDay;
-
-            const durationDays =
-                durationDifference / millisecondsPerDay + 1;
-
-            const ganttBar =
-                task.element.querySelector(".gantt-bar");
-
-            ganttBar.style.left =
-                `${startDays * pixelsPerDay}px`;
-
-            ganttBar.style.width =
-                `${durationDays * pixelsPerDay}px`;
-
-            ganttBar.style.backgroundColor =
-                task.element.dataset.color;
-        });
+        document
+            .getElementById("gantt-chart")
+            .appendChild(todayLine);
     }
-});
+
+    //ガントバー
+    
+    taskData.forEach(function (task) {
+        const startDifference =
+            task.startDate.getTime()
+            - chartStartDate.getTime();
+
+        const durationDifference =
+            task.endDate.getTime()
+            - task.startDate.getTime();
+
+        const startDays =
+            startDifference / millisecondsPerDay;
+
+        const durationDays =
+            durationDifference / millisecondsPerDay + 1;
+
+        const ganttBar =
+            task.element.querySelector(".gantt-bar");
+
+        ganttBar.style.left =
+            `${startDays * pixelsPerDay}px`;
+
+        ganttBar.style.width =
+            `${durationDays * pixelsPerDay}px`;
+
+        ganttBar.style.backgroundColor =
+            task.element.dataset.color;
+    });
+}

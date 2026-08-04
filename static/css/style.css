@@ -37,6 +37,7 @@ aside {
 }
 
 #gantt-container {
+    overflow-x: auto;
     flex: 1;
     padding: 20px;
 }
@@ -117,6 +118,7 @@ button {
 }
 
 #gantt-chart {
+    min-width: 600px;
     position: relative;
 }
 
@@ -124,11 +126,8 @@ button {
     position: absolute;
     top: 0;
     bottom: 0;
-
     width: 2px;
     background-color: red;
-
     z-index: 10;
-
     pointer-events: none;
 }
