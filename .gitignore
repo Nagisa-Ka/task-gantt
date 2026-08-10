@@ -15,3 +15,7 @@ instance/
 
 # VS Code
 .vscode/
+
+# PyInstaller
+build/
+dist/

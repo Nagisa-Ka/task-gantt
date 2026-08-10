@@ -1,11 +1,28 @@
 import os
+import sys
+from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, flash
 from extensions import db
 from datetime import datetime
+import webbrowser
+import threading
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+RESOURCE_DIR = Path(__file__).resolve().parent
 
-app = Flask(__name__)
+if getattr(sys, "frozen", False):
+    DATA_DIR = Path(sys.executable).resolve().parent
+else:
+    DATA_DIR = RESOURCE_DIR
+
+DATABASE_DIR = DATA_DIR / "database"
+DATABASE_DIR.mkdir(exist_ok=True)
+
+app = Flask(
+    __name__,
+    template_folder=str(RESOURCE_DIR / "templates"),
+    static_folder=str(RESOURCE_DIR / "static")
+)
 
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
@@ -13,7 +30,7 @@ app.config["SECRET_KEY"] = os.environ.get(
 )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "sqlite:///" + os.path.join(BASE_DIR, "database", "database.db")
+    "sqlite:///" + str(DATABASE_DIR / "database.db")
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -181,8 +198,16 @@ def drag_update():
 
     return {"success": True}
 
+def open_browser():
+    webbrowser.open("http://127.0.0.1:5000")
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+
+    threading.Timer(
+        1.0,
+        open_browser
+    ).start()
         
-    app.run(debug=True)
+    app.run(debug=False)
