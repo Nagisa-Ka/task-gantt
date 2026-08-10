@@ -3,6 +3,7 @@ const titleInput = document.getElementById("task-title");
 const colorInput = document.getElementById("task-color");
 const startDateInput = document.getElementById("task-start-date");
 const endDateInput = document.getElementById("task-end-date");
+const taskForm = document.getElementById("task-form");
 
 taskSelect.addEventListener("change", function () {
     const selectedOption =
@@ -23,7 +24,7 @@ taskSelect.addEventListener("change", function () {
     endDateInput.value = selectedOption.dataset.endDate;
 });
 
-const taskForm = document.getElementById("task-form");
+
 
 taskForm.addEventListener("submit", function (event) {
     const clickedButton = event.submitter;
@@ -66,14 +67,12 @@ function parseLocalDate(dateString) {
     );
 }
 
-//HTMLからタスクを取得
 const ganttTasks =
     document.querySelectorAll(".gantt-task");
 
 const taskData = [];
 const pixelsPerDay = 40;
 
-//YYYY-MM-DDをローカル日付に変換
 function parseLocalDate(dateString) {
     const [year, month, day] = dateString
         .split("-")
@@ -116,7 +115,6 @@ ganttTasks.forEach(function (taskElement) {
 
 });
 
-//データがある場合だけガントチャートを描写
 if (taskData.length > 0) {
 
     const chartStartDate = new Date(
@@ -169,7 +167,6 @@ if (taskData.length > 0) {
         dateElement.textContent =
             `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
 
-        // 土日の判定
         const dayOfWeek =
             currentDate.getDay();
 
@@ -302,11 +299,9 @@ if (taskData.length > 0) {
 
     taskData.forEach(function (task) {
         
-        // タスク行の背景を取得
         const background =
             task.element.querySelector(".gantt-background");
 
-        // 1日ずつ背景セルを作る
         for (let day = 0; day < chartDuration; day++) {
 
             const currentDate =
@@ -481,8 +476,6 @@ if (taskData.length > 0) {
         .then(function (data) {
 
             if (data.success) {
-                console.log("タスクを更新しました");
-
                 taskElement.dataset.startDate =
                     newStartDate;
 
@@ -492,8 +485,6 @@ if (taskData.length > 0) {
             } else {
                 draggedBar.style.left =
                     `${originalLeft}px`;
-
-                console.log("タスクの更新に失敗しました");
             }
         })
         .catch(function (error) {
