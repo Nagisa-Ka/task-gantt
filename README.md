@@ -48,9 +48,9 @@ Flaskで作成した、タスク管理とガントチャート表示ができる
 
 ```powershell
 git clone https://github.com/Nagisa-Ka/task-gantt.git
-cd gantt-app
+cd task-gantt
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate
 pip install -r requirements.txt
 python app.py
 ```
