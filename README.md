@@ -30,7 +30,7 @@
 
 ### 開発を通して新しく学んだこと
 
-- Pythoのための仮想環境の構築方法
+- Pythonのための仮想環境の構築方法
 - flask、Flask-SQLAlchemy、SQLiteを用いたCRUD機能の実装方法
 - READMEの書き方
 - pytestの扱い方
